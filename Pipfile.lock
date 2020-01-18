@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2ee3b407fe70ed670c6898cb08ce23efb95035644a264d179be90cb1d3976e81"
+            "sha256": "c303ff8364c3d14d7a96392b31d1d8488734ab3fbbcbc3110360a6a0996beb4d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,13 @@
         ]
     },
     "default": {
+        "imutils": {
+            "hashes": [
+                "sha256:857af6169d90e4a0a814130b9b107f5d611150ce440107e1c1233521c6fb1e2b"
+            ],
+            "index": "pypi",
+            "version": "==0.5.3"
+        },
         "numpy": {
             "hashes": [
                 "sha256:1786a08236f2c92ae0e70423c45e1e62788ed33028f94ca99c4df03f5be6b3c6",
@@ -73,6 +80,14 @@
             ],
             "index": "pypi",
             "version": "==4.1.2.30"
+        },
+        "pyvjoy": {
+            "hashes": [
+                "sha256:00a6c02259758125ddefa76699352a373f75c5a493b166d837dbe52111a2f85f",
+                "sha256:e3e1382034a94353c802b3eea231b0fa950f8e726a813690c7ac706df807acad"
+            ],
+            "index": "pypi",
+            "version": "==1.0.1"
         },
         "pyxinput": {
             "hashes": [

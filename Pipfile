@@ -8,6 +8,8 @@ verify_ssl = true
 [packages]
 opencv-python = "*"
 pyxinput = "*"
+imutils = "*"
+pyvjoy = "*"
 
 [requires]
 python_version = "3.7"
