@@ -1,8 +1,9 @@
-import cv2 as cv2
+import cv2 as cv
 import imutils
 import argparse
 import numpy as np
 
+# Calculates lines from Hough Transform, merges into one line based on average
 def calculate_lines(frame, lines):
     left = []
     right = []
@@ -23,45 +24,66 @@ def calculate_lines(frame, lines):
 
 def calculate_coordinates(frame, parameters):
     slope, intercept = parameters
-    y1 = image.shape[0]
-    y2 = int(y1 - 500)
+    y1 = frame.shape[0]
+    y2 = int(y1 - 800)
 
     x1 = int((y1 - intercept) / slope)
     x2= int((y2 - intercept) / slope)
 
     return np.array([x1, y1, x2, y2])
 
+#Takes data from calculated lines and adds them to frame. Currently modified to exclude create_lines and calculate_coordinates.
+def create_lines(img, lines):
+
+    lines_visualize = np.zeros_like(img)
+
+    if lines is not None:
+        for x1, y1, x2, y2 in lines:
+                cv.line(lines_visualize, (x1, y1), (x2, y2), (0, 255, 0), 15)
+
+    return lines_visualize
 
 
 # Load test image from Dashcam
-image = cv2.imread("test_images/out2.png")
+#image = cv.imread("test_images/out2.png")
 
-# Grayscale image
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+#Load sample video - Eventually convert this to desktop capture for GTA
+vid = cv.VideoCapture("test_images/sample.mp4")
 
-#Canny to map edges
-eConvert = cv2.Canny(gray, 60, 200)
+while (vid.isOpened()):
+
+    ret, frame = vid.read()
+
+    # Grayscale image
+    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+
+    #fGray = cv.bilateralFilter(gray, 7, 75, 75)
+
+    pImage = cv.Canny(gray, 150, 250, 4)
+    #pImage = fGray
 
 # Mask to do trapezoidish FOV to remove unnessary data from frame - Currently Calibrated to test frame, need to recalibrate for GTA sample later
 # TO-DO: Make dynamic based on Height & Width of source frames. i.e: OldManDan running it on his machine with a different resolution
-mask = np.zeros_like(eConvert)
-height = eConvert.shape[0]
-roi_points = np.array([[0, height], [1150,840], [1300,840], [2560, height]], np.int32)
-cv2.fillConvexPoly(mask, roi_points, 255)
-masked_image = cv2.bitwise_and(eConvert, mask)
+    mask = np.zeros_like(pImage)
+    height = pImage.shape[0]
+    #Edit ROI_POINTS per perspective or mask will be bad.
+    roi_points = np.array([[0, 1150], [0, 900], [1000,550], [1600,550], [2560, 900], [2560, 1150]], np.int32)
+    cv.fillConvexPoly(mask, roi_points, (255,255,255))
+    masked_image = cv.bitwise_and(pImage, mask)
 
-hough = cv2.HoughLinesP(masked_image, 2, np.pi / 180, 100, np.array([]), 100, 50)
+    # hough = cv.HoughLinesP(masked_image, 2, np.pi / 180, 50, np.array([]), 100, 100)
 
-lines = calculate_lines(image, hough)
 
-lines_visualize = np.zeros_like(image)
+    # lines = calculate_lines(frame, hough)
 
-if lines is not None:
-    for x1, y1, x2, y2 in lines:
-        cv2.line(lines_visualize, (x1, y1), (x2, y2), (0, 255, 0), 15)
+    # lines_visualize = create_lines(frame, lines)
 
-output = cv2.addWeighted(image, 0.9, lines_visualize, 1, 1)
+    # output = cv.addWeighted(frame, 0.9, lines_visualize, 1, 1)
 
-cv2.imshow("Test", output)
-cv2.waitKey(0)
-exit()
+    cv.imshow("Test", masked_image)
+
+    if cv.waitKey(10) == ord('q'):
+        break
+
+vid.release()
+cv.destroyAllWindows()
