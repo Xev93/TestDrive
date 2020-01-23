@@ -32,6 +32,12 @@ def calculate_coordinates(frame, parameters):
 
     return np.array([x1, y1, x2, y2])
 
+# Literal copy paste of the pythonplays draw_lines func
+def draw_lines(img,lines):
+    for line in lines:
+        coords = line[0]
+        cv.line(img, (coords[0], coords[1]), (coords[2], coords[3]), [255,255,255], 3)
+
 #Takes data from calculated lines and adds them to frame. Currently modified to exclude create_lines and calculate_coordinates.
 def create_lines(img, lines):
 
@@ -60,7 +66,7 @@ while (vid.isOpened()):
     #fGray = cv.bilateralFilter(gray, 7, 75, 75)
 
     pImage = cv.Canny(gray, 150, 250, 4)
-    #pImage = fGray
+    # pImage = fGray
 
 # Mask to do trapezoidish FOV to remove unnessary data from frame - Currently Calibrated to test frame, need to recalibrate for GTA sample later
 # TO-DO: Make dynamic based on Height & Width of source frames. i.e: OldManDan running it on his machine with a different resolution
@@ -71,8 +77,14 @@ while (vid.isOpened()):
     cv.fillConvexPoly(mask, roi_points, (255,255,255))
     masked_image = cv.bitwise_and(pImage, mask)
 
+    # Applying gaussian blur on masked img
+    masked_image = cv.GaussianBlur(masked_image, (5, 5), 0)
+
     # hough = cv.HoughLinesP(masked_image, 2, np.pi / 180, 50, np.array([]), 100, 100)
 
+    # changed hough params slightly
+    hough = cv.HoughLinesP(masked_image, 1, np.pi/180, 180, 20, 15)
+    draw_lines(masked_image, hough)
 
     # lines = calculate_lines(frame, hough)
 
